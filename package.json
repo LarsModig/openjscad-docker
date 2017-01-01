@@ -1,0 +1,19 @@
+{
+  "name": "openjscad-docker",
+  "version": "0.0.1",
+  "description": "Dockerized openjscad with extra tools",
+  "main": "entry.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "docker",
+    "openjscad",
+    "stl"
+  ],
+  "author": "Lars Modig <larswillymodig@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "httpdispatcher": "^2.0.1"
+  }
+}
