@@ -7,7 +7,7 @@ Converts SVG to JSCAD via /input /output folder. Watches for changes in /input f
 ## Running it
 
 ```
-docker run -t --rm \
+docker run -it --rm \
            -v `pwd`/input:/input \
            -v `pwd`/output:/output \
            -p 4000:4000 \
