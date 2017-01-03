@@ -61,7 +61,9 @@ function convertFile(inPath, outPath) {
     console.log(err)
   });
   p.on('close', (code) => {
-    if (!success) {
+    if (success) {
+      editJscadFile(outPath);
+    } else {
       console.error(`Converting failed on ${inPath}. Output:`);
       console.error(stdout);
     }
@@ -72,6 +74,21 @@ function isSuportedInput(filename) {
   const filetype = filename.split('.')[1];
   const supportedTypes = ['svg'];
   return supportedTypes.includes(filetype);
+}
+
+function editJscadFile(filePath) {
+  fs.readFile(filePath, (err,data) => {
+    if (err) {
+      return console.log(err);
+    }
+    const dataString = data.toString();
+    const result = dataString.replace(/^function main\(params\)$/, 'function stl(params)');
+    fs.writeFile(filePath, result, (err) => {
+       if (err) {
+         return console.log(err);
+       }
+    });
+  });
 }
 
 
