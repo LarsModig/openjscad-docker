@@ -29,21 +29,34 @@ function startWatch() {
 }
 
 
-function checkFile(file) {
-  if (isSuportedInput(file)) {
-    const inName = inputPath + file;
-    const newName = file.split('.')[0] + '.jscad';
-    const outName = outputPath + newName;
-    console.log(`${file} CONVERTING to ${newName}`);
-    convertFile(inName,outName);
+function checkFile(fileString) {
+  var file;
+  if (file = getFileInfo(fileString)) {
+    console.log(`${fileString} CONVERTING to ${file.outPath}`);
+    convertFile(file);
   } else {
-    console.log(`${file} skipped`);
+    console.log(`${fileString} skipped`);
   }
 }
 
-function convertFile(inPath, outPath) {
+function getFileInfo(fileName) {
+  const file = {
+    name: fileName.split('.')[0],
+    type: fileName.split('.')[1],
+    inPath: inputPath + fileName,
+    outPath: outputPath + fileName.split('.')[0] + '.jscad'
+  };
+  const supportedTypes = ['svg'];
+  if( supportedTypes.includes(file.type) ) {
+    return file;
+  } else {
+    return false;
+  }
+}
+  
+function convertFile(file) {
   const options = { cwd: openjscadPath };
-  const p = spawn('node', ['openjscad', inPath, '-o', outPath], options);
+  const p = spawn('node', ['openjscad', file.inPath, '-o', file.outPath], options);
   
   var success = false;
   var stdout = '';
@@ -62,28 +75,25 @@ function convertFile(inPath, outPath) {
   });
   p.on('close', (code) => {
     if (success) {
-      editJscadFile(outPath);
+      editJscadFile(file);
     } else {
-      console.error(`Converting failed on ${inPath}. Output:`);
+      console.error(`Converting failed on ${file.inPath}. Output:`);
       console.error(stdout);
     }
   });
 }
 
-function isSuportedInput(filename) {
-  const filetype = filename.split('.')[1];
-  const supportedTypes = ['svg'];
-  return supportedTypes.includes(filetype);
-}
-
-function editJscadFile(filePath) {
-  fs.readFile(filePath, (err,data) => {
+function editJscadFile(file) {
+  fs.readFile(file.outPath, (err,data) => {
     if (err) {
       return console.log(err);
     }
     const dataString = data.toString();
-    const result = dataString.replace(/^function main\(params\)$/, 'function stl(params)');
-    fs.writeFile(filePath, result, (err) => {
+    const result = dataString.replace(
+      /function main\(params\)/, 
+      `// Modified by openjscad-docker\n//\nfunction ${file.name}(params)`
+    );
+    fs.writeFile(file.outPath, result, (err) => {
        if (err) {
          return console.log(err);
        }
