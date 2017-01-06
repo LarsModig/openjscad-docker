@@ -105,17 +105,15 @@ function editJscadFile(file) {
 function startWebserver() {
   dispatcher.setStatic('');
   dispatcher.setStaticDirname(openjscadPath);
-  var server = http.createServer(handleRequest);
+  var server = http.createServer( (request, response) => {
+    try {
+      console.log(request.url);
+      dispatcher.dispatch(request, response);
+    } catch(err) {
+      console.log(err);
+    }
+  });
   server.listen(PORT, function() {
     console.log("Server started on port " + PORT);
   });
-}
-
-function handleRequest(request, response){
-  try {
-    console.log(request.url);
-    dispatcher.dispatch(request, response);
-  } catch(err) {
-    console.log(err);
-  }
 }
