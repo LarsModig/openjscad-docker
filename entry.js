@@ -53,11 +53,11 @@ function getFileInfo(fileName) {
     return false;
   }
 }
-  
+
 function convertFile(file) {
   const options = { cwd: openjscadPath };
   const p = spawn('node', ['openjscad', file.inPath, '-o', file.outPath], options);
-  
+
   var success = false;
   var stdout = '';
   p.stdout.on('data', (data) => {
@@ -90,7 +90,7 @@ function editJscadFile(file) {
     }
     const dataString = data.toString();
     const result = dataString.replace(
-      /function main\(params\)/, 
+      /function main\(params\)/,
       `// Modified by openjscad-docker\n//\nfunction ${file.name}(params)`
     );
     fs.writeFile(file.outPath, result, (err) => {
@@ -108,7 +108,12 @@ function startWebserver() {
   var server = http.createServer( (request, response) => {
     try {
       console.log(request.url);
-      dispatcher.dispatch(request, response);
+      if (request.url == '/') {
+        response.writeHead(301, {Location: '/index.html'});
+        response.end();
+      } else {
+        dispatcher.dispatch(request, response);
+      }
     } catch(err) {
       console.log(err);
     }
